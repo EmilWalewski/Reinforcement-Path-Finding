@@ -19,33 +19,33 @@ class Env:
     def reward(self, current, direction):
         if direction == 'up':
             if current[0] - 1 < self.top:
-                return (current[0] - 1, current[1]), -100
+                return (current[0] - 1, current[1]), -10
             else:
                 if maze[current[0] - 1][current[1]] == 1:
-                    return (current[0] - 1, current[1]), -100
+                    return (current[0] - 1, current[1]), -10
                 return (current[0] - 1, current[1]), 10
         elif direction == 'right':
             if current[1] + 1 > self.right:
-                return (current[0], current[1] + 1), -100
+                return (current[0], current[1] + 1), -10
             else:
                 if maze[current[0]][current[1] + 1] == 1:
-                    return (current[0], current[1] + 1), -100
+                    return (current[0], current[1] + 1), -10
                 else:
                     return (current[0], current[1] + 1), 10
         elif direction == 'left':
             if current[1] - 1 < self.left:
-                return (current[0], current[1] - 1), -100
+                return (current[0], current[1] - 1), -10
             else:
                 if maze[current[0]][current[1] - 1] == 1:
-                    return (current[0], current[1] - 1), -100
+                    return (current[0], current[1] - 1), -10
                 else:
                     return (current[0], current[1] - 1), 10
         elif direction == 'down':
             if current[0] + 1 > self.bottom:
-                return (current[0] + 1, current[1]), -100
+                return (current[0] + 1, current[1]), -10
             else:
                 if maze[current[0] + 1][current[1]] == 1:
-                    return (current[0] + 1, current[1]), -100
+                    return (current[0] + 1, current[1]), -10
                 else:
                     return (current[0] + 1, current[1]), 10
 
@@ -107,9 +107,14 @@ class Agent:
                     state.update_reward(visited_nodes[new_position])
                     current_state.add_next_state(state)
 
+            if current_state.previous_state is not None:
+                for next_state in current_state.next_states:
+                    if next_state.position == current_state.previous_state.position:
+                        next_state.is_visited = True
+
             if not done:
                 for idx, next_state in enumerate(current_state.next_states):
-                    if next_state.reward >= current_state.reward and next_state.is_visited == False:
+                    if next_state.reward >= current_state.reward and not next_state.is_visited:
                         print(f'Go to {current_state.position} -> {next_state.position}')
                         current_state = next_state
                         next_state_exists = True
