@@ -1,11 +1,22 @@
 import numpy as np
 
-maze = np.zeros((5, 5))
+maze = np.zeros((10, 10))
 maze[1][0] = 1
 maze[1][4] = 1
 maze[2][2] = 1
 maze[3][3] = 1
 maze[4][3] = 1
+maze[9][6] = 1
+maze[8][6] = 1
+maze[7][6] = 1
+maze[6][6] = 1
+maze[5][6] = 1
+maze[4][6] = 1
+maze[4][7] = 1
+maze[5][7] = 1
+maze[6][8] = 1
+maze[7][8] = 1
+maze[8][8] = 1
 
 
 class Env:
@@ -48,6 +59,9 @@ class Env:
                     return (current[0] + 1, current[1]), -10
                 else:
                     return (current[0] + 1, current[1]), 10
+
+    def update_success_path(self, position):
+        self.maze[position[0]][position[1]] = 7
 
 
 class State:
@@ -93,10 +107,19 @@ class Agent:
                     new_position, reward = self.env.reward(current_state.position, step)
 
                     if new_position == self.reward_point:
+
                         print(f'Go to {current_state.position} -> {new_position}')
                         print(f'Iterations = {iterations}')
                         print('Treasure found')
                         done = True
+
+                        pos = new_position
+                        while pos != self.start_point:
+                            pos = current_state.position
+                            self.env.update_success_path(pos)
+                            current_state = current_state.previous_state
+
+                        print(self.env.maze)
                         break
 
                     state = State(new_position, current_state)
@@ -106,6 +129,9 @@ class Agent:
                         visited_nodes[new_position] = current_state.reward + reward
                     state.update_reward(visited_nodes[new_position])
                     current_state.add_next_state(state)
+
+            if done:
+                break
 
             if current_state.previous_state is not None:
                 for next_state in current_state.next_states:
@@ -130,8 +156,8 @@ class Agent:
 
 
 env = Env(maze)
-start_point = (4, 2)
-reward_point = (4, 0)
-agent = Agent(env, start_point, reward_point)
+start = (0, 0)
+end = (6, 7)
+agent = Agent(env, start, end)
 print(env.maze)
 agent.move()
